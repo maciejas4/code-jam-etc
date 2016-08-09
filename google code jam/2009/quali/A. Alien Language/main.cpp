@@ -12,7 +12,7 @@ int main()
   char token;
   vector<string> dictionary;
   vector<string> decipheredWords;
-  vector<vector<char>> decipheredWord; //a word is a vector of vectors of chars (vector of chars represents a set of possible letters on one position in a word)
+  vector<vector<char> > decipheredWord; //a word is a vector of vectors of chars (vector of chars represents a set of possible letters on one position in a word)
   vector<char> possibleLetters;
   cin >> L >> D >> N;
 
@@ -36,9 +36,13 @@ int main()
         do
         {
           cin >> token;
-        } while(token != ')')
+        } while(token != ')');
       }
       else
+      {
+        
+      }
+      
     }
   }
 
