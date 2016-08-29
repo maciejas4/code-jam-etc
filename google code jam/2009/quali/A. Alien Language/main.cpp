@@ -10,6 +10,8 @@ NOTES:
 -VARIABLES' NAMES COULD BE BETTER
 -SOME OF IT NEEDS OPTIMIZATION, BECAUSE IT CHECKS LITERALLY EACH CASE EVEN THOUGH SOME OF THEM SHOULD BE SKIPPED, APPROPRIATE INDICATOR IS IN THE CODE
 */
+
+//checks if the given word is in the dictionary
 bool WordIsInDictionary(vector<string> dictionary, string word)
 {
 	for (size_t i = 0; i < dictionary.size(); i++)
@@ -20,6 +22,19 @@ bool WordIsInDictionary(vector<string> dictionary, string word)
 		}
 	}
 	return false;
+}
+
+//checks if there is a word with a given letter on a given position in the dictionary (needed for optimization)
+bool WordMightBeInDict(char c, int index, vector<string> dictionary)
+{
+  for (auto word : dictionary)
+  {
+    if (word[index] == c)
+    {
+      return true;
+    }
+  }
+  return false;
 }
 
 int main()
@@ -35,7 +50,7 @@ int main()
 	vector<vector<char> > decipheredWord; //a word is a vector of vectors of chars (vector of chars represents a set of possible letters on one position in a word)
 	vector<char> possibleLetters;
 	cin >> L >> D >> N;
-	vector<int> characterIndicator; //e.g. 1,0,2 for (xyz)x(zrtz) means "yxt""
+	vector<int> characterIndicator; //e.g. 1,0,2 for (xyz)x(zrtz) means "yxt"
 
 									//getting dictionary
 	cin.ignore();
@@ -44,7 +59,7 @@ int main()
 		getline(cin, temp);
 		dictionary.push_back(temp);
 	}
-
+  
 	//main loop
 	for (size_t i = 0; i < N; i++)
 	{
@@ -107,17 +122,32 @@ int main()
 			{
 				indexToIncrease--;
 			}
+			if (indexToIncrease < 0) break; //important break, current loop is very little likely to run possibleWordsCount times
 			for (size_t k = indexToIncrease + 1; k < L; k++)
 			{
 				characterIndicator[k] = 0;
 			}
-			characterIndicator[indexToIncrease]++;
+      characterIndicator[indexToIncrease]++;
+			while (!WordMightBeInDict(decipheredWord[indexToIncrease][characterIndicator[indexToIncrease]], indexToIncrease, dictionary) && characterIndicator[indexToIncrease] < decipheredWord[indexToIncrease].size() - 1)
+      {
+        characterIndicator[indexToIncrease]++;
+      }
+			if (!WordMightBeInDict(decipheredWord[indexToIncrease][characterIndicator[indexToIncrease]], indexToIncrease, dictionary) && characterIndicator[indexToIncrease] == decipheredWord[indexToIncrease].size() - 1)
+			{
+				indexToIncrease--;
+				for (size_t k = indexToIncrease + 1; k < L; k++)
+				{
+					characterIndicator[k] = 0;
+				}
+				continue;
+			}
 			indexToIncrease = L - 1;
 			for (size_t k = 0; k < L; k++)
 			{
 				wordFromPattern += decipheredWord[k][characterIndicator[k]];
 			}
 			//check the word
+			cout << "Case #" << i + 1 << wordFromPattern << endl;
 			if (WordIsInDictionary(dictionary, wordFromPattern))
 			{
 				matchingCount++;
