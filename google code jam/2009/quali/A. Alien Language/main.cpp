@@ -51,6 +51,7 @@ int main()
 	vector<char> possibleLetters;
 	cin >> L >> D >> N;
 	vector<int> characterIndicator; //e.g. 1,0,2 for (xyz)x(zrtz) means "yxt"
+	vector<int> firstMatchingLetters;
 
 									//getting dictionary
 	cin.ignore();
@@ -94,22 +95,35 @@ int main()
 		{
 			possibleWordsCount *= decipheredWord[j].size(); //e.g. possibleWordsCount for (xyz)x(zrtz) would be 3*1*4 = 12
 		}
-		characterIndicator.clear();
-		for (size_t j = 0; j < L; j++)
-		{
-			characterIndicator.push_back(0);
-		}
-		//firstly check the word constructed from first letters
+
+		//firstly find firstMatchingLetters
 		wordFromPattern = "";
+		firstMatchingLetters.clear();
 		for (size_t j = 0; j < L; j++)
 		{
-			wordFromPattern += decipheredWord[j][0];
+			for (size_t k = 0; k < decipheredWord[j].size(); k++)
+			{
+				if (WordMightBeInDict(decipheredWord[j][k], j, dictionary))
+				{
+					firstMatchingLetters.push_back(k);
+					wordFromPattern += decipheredWord[j][k];
+					break;
+				}
+			}
 		}
+		if (firstMatchingLetters.size() != L) continue; //there was at least one position without any matching letters -> move to the next case
 		matchingCount = 0;
 		if (WordIsInDictionary(dictionary, wordFromPattern))
 		{
 			matchingCount++;
 		}
+
+		characterIndicator.clear();
+		for (size_t j = 0; j < L; j++)
+		{
+			characterIndicator.push_back(firstMatchingLetters[j]);
+		}
+
 		indexToIncrease = L - 1;
 		//this loop finds all possible words from a pattern and checks them against the dictionary
     //OPTIMIZATION VERY MUCH NEEDED HERE, e.g. don't check 0xxxx for (mno)(zxcq)(zxcq)(zxcq)(zxcq) if there are no words starting with 'm' in the dictionary
@@ -147,7 +161,7 @@ int main()
 				wordFromPattern += decipheredWord[k][characterIndicator[k]];
 			}
 			//check the word
-			cout << "Case #" << i + 1 << wordFromPattern << endl;
+			//cout << "Case #" << i + 1 << " " << wordFromPattern << endl;
 			if (WordIsInDictionary(dictionary, wordFromPattern))
 			{
 				matchingCount++;
